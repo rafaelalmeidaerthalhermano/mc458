@@ -1,0 +1,20 @@
+25 25
+tggccagcaaccttatgcgagatgt
+ctctatggattacaacccatctccc
+-1 1 2 2 99999999 99999999
+12 38
+atatctaatgtg
+acggtgttgttgtgtctagttggtactttgctggccat
+-1 1 2 2 99999999 99999999
+6 44
+acgttc
+cggtctgacttcacattagcggggccttagaatctaacacagca
+-1 1 2 2 99999999 99999999
+3 47
+tct
+gcagtgaatctgaagatttttatttcataccccctattagtgatggt
+-1 1 2 2 99999999 99999999
+1 49
+c
+agatgtgctgttgaatcttacggaagtgagtaatgggagcccttctggc
+-1 1 2 2 99999999 99999999

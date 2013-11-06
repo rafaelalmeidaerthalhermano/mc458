@@ -1,0 +1,20 @@
+50 50
+cggtagtgccgtactttcattcaaatcgcttcccactgtatatgcgcatc
+tccgcccctcaggatgcgatggtcaatcacctggcttcacgttatcgatc
+-1 1 2 2 99999999 99999999
+25 75
+tatgctgtagacagtcccgagatca
+ggcgagaacgcataacaacgtcgatgggcggtatcaccaggagcacgtcgcatttgccagtccgacgagcgactc
+-1 1 2 2 99999999 99999999
+12 88
+cagacaacttac
+taactccccggcatgtacaccgaggatctgcggcgcgtctcttcgcaggtttctcgtatcgataccatacccaacgccatatgactga
+-1 1 2 2 99999999 99999999
+6 94
+tccaat
+acaattcaacactcctaccgcgctgatgatctacttatttatagaccacgggatacgttggacgctaagttgctactaaagggcagggccatca
+-1 1 2 2 99999999 99999999
+3 97
+agt
+agctctatgaggagagacgctagatactaggaattaggtagcggtcatgcaaccaacatcgccgaagcgccagggctctcgtctaagcacggctacg
+-1 1 2 2 99999999 99999999

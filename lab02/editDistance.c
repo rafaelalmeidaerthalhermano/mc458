@@ -9,8 +9,9 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #define INFINITY 99999999
-#define MAX_SIZE 100
+#define MAX_SIZE 5000
 
 struct Operation {
     int cost;
@@ -51,30 +52,6 @@ int stringSize (char * string) {
 }
 
 /*
- * Creates a new change object
- *
- * param {int} i Line of the change in the table
- * param {int} j Column of the change in the table
- *
- * returns {struct Change *} The change object
- */
-struct Change * NewChange (int i, int j) {
-    struct Change * change;
-
-    change               = malloc(sizeof(struct Change));
-    change->i            = i;
-    change->j            = j;
-    change->cost         = INFINITY;
-    change->character[0] = '\0';
-    change->character[1] = '\0';
-    change->character[2] = '\0';
-    change->type         = NULL;
-    change->previous     = NULL;
-
-    return change;
-}
-
-/*
  * Prints the decision stack for the edit distance
  *
  * param {struct Change *} change The top of the stack
@@ -86,25 +63,27 @@ void PrintChanges (struct Change * change) {
 }
 
 /*
- * Prints the decision matrix
+ * Creates a new change object
  *
- * param {struct Change * [MAX_SIZE][MAX_SIZE]} costs Decision matrix
- * param {int} size1 Size of string1
- * param {int} size2 Size of string2
+ * param {int} i Line of the change in the table
+ * param {int} j Column of the change in the table
+ *
+ * returns {struct Change *} The change object
  */
-void PrintMatrix (struct Change * costs [MAX_SIZE][MAX_SIZE], int size1, int size2) {
-    int i, j;
+struct Change * NewChange (int i, int j) {
+    struct Change * change;
 
-    for (i = 0; i < size1; i++) {
-        for (j = 0; j < size2; j++) {
-            if (i == 0 && j == 0) {
-                printf("n %2d      ", costs[i][j]->cost);
-            } else {
-                printf("%c %2d %c    ", costs[i][j]->type->name[0], costs[i][j]->cost, costs[i][j]->character[0]);
-            }
-        }
-        printf("\n");
-    }
+    change               = (struct Change *) malloc(sizeof(struct Change));
+    change->i            = i;
+    change->j            = j;
+    change->cost         = INFINITY;
+    change->character[0] = '\0';
+    change->character[1] = '\0';
+    change->character[2] = '\0';
+    change->type         = NULL;
+    change->previous     = NULL;
+
+    return change;
 }
 
 /*
@@ -119,10 +98,16 @@ struct Change * Distance (char * wrongString, char * correctString) {
     int lines, columns;
     int i, j;
     int cost;
-    struct Change * costs [MAX_SIZE][MAX_SIZE];
+    struct Change *** costs;
 
     lines = stringSize(correctString) + 1;
     columns = stringSize(wrongString) + 1;
+
+    costs = (struct Change ***) malloc(sizeof(struct Change **) * lines);
+
+    for (i = 0; i < lines; i++) {
+        costs[i] = (struct Change **) malloc(sizeof(struct Change) * columns);
+    }
 
     costs[0][0]       = NewChange(0,0);
     costs[0][0]->cost = 0;
@@ -204,7 +189,7 @@ struct Change * Distance (char * wrongString, char * correctString) {
     }
     /* KILL OPERATION */
     i = lines - 1;
-    for (j = 1; j < columns; j++) {
+    for (j = 0; j < columns; j++) {
         cost = costs[i][j]->cost + KILL.cost;
         if (cost < costs[lines - 1][columns - 1]->cost) {
             costs[lines - 1][columns - 1]->cost         = cost;
@@ -220,31 +205,50 @@ struct Change * Distance (char * wrongString, char * correctString) {
 }
 
 int main (void) {
-    int i, j;
     struct Change * changes;
+    char *string1, *string2;
+    int size1, size2;
+    struct timespec start, stop;
+    int i, j;
 
-    COPY.name    = "Copy";
-    COPY.cost    = 2;
+    clock_gettime( CLOCK_REALTIME, &start)
 
-    REPLACE.name = "Replace";
-    REPLACE.cost = 2;
+    for (i = 0; i < 5; i++) {
+        scanf("%d", &size1);
+        scanf("%d", &size2);
 
-    REMOVE.name  = "Delete";
-    REMOVE.cost  = 1;
+        string1 = (char *) malloc(sizeof(char) * size1);
+        string2 = (char *) malloc(sizeof(char) * size2);
 
-    INSERT.name  = "Insert";
-    INSERT.cost  = 3;
+        scanf("%s", string1);
+        scanf("%s", string2);
 
-    TWIDDLE.name = "TWIDDLE";
-    TWIDDLE.cost = 1;
+        COPY.name = "Copy";
+        scanf("%d", &COPY.cost);
 
-    KILL.name    = "KILL";
-    KILL.cost    = 1;
+        REPLACE.name = "Replace";
+        scanf("%d", &REPLACE.cost);
 
-    changes = Distance("algorithm", "altruistic");
+        REMOVE.name = "Delete";
+        scanf("%d", &REMOVE.cost);
 
-    printf("%d\n" , changes->cost);
-    PrintChanges(changes);
+        INSERT.name = "Insert";
+        scanf("%d", &INSERT.cost);
+
+        TWIDDLE.name = "Twiddle";
+        scanf("%d", &TWIDDLE.cost);
+
+        KILL.name = "Kill";
+        scanf("%d", &KILL.cost);
+
+        changes = Distance(string1, string2);
+    }
+
+    clock_gettime( CLOCK_REALTIME, &stop)
+
+    printf ("%lf\n", ( stop.tv_sec - start.tv_sec ) + ( stop.tv_nsec - start.tv_nsec ));
+    //printf("%d\n", changes->cost);
+    //PrintChanges(changes);
 
     return 0;
 }
