@@ -10,21 +10,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define INFINITY 99999999
-#define MAX_SIZE 100
 
-struct Operation {
+struct OperationType {
     int cost;
     char * name;
 };
 
-struct Operation INSERT;
-struct Operation REMOVE;
-struct Operation REPLACE;
-struct Operation COPY;
+struct OperationType INSERT;
+struct OperationType REMOVE;
+struct OperationType REPLACE;
+struct OperationType COPY;
 
-struct Change {
-    struct Operation * type;
-    struct Change * previous;
+struct Operation {
+    struct OperationType * type;
+    struct Operation * previous;
     char firstString, secondString;
     int cost;
 };
@@ -48,37 +47,52 @@ int stringSize (char * string) {
 }
 
 /*
- * Creates a new change object
+ * Creates a new operation object
  *
- * returns {struct Change *} The change object
+ * returns {struct Operation *} The operation object
  */
-struct Change * NewChange () {
-    struct Change * change;
+struct Operation * NewOperation () {
+    struct Operation * operation;
 
-    change               = malloc(sizeof(struct Change));
-    change->cost         = INFINITY;
-    change->type         = NULL;
-    change->previous     = NULL;
+    operation               = malloc(sizeof(struct Operation));
+    operation->cost         = INFINITY;
+    operation->type         = NULL;
+    operation->previous     = NULL;
 
-    return change;
+    return operation;
 }
 
-void printOperations (struct Change * change) {
-    if (change == NULL || change->type == NULL) { return; }
-    printOperations(change->previous);
-    printf("%c", change->type->name[0]);
+/*
+ * Prints the operations stack for the edit distance
+ *
+ * param {struct Operation *} operation The top of the stack
+ */
+void printOperationTypes (struct Operation * operation) {
+    if (operation == NULL || operation->type == NULL) { return; }
+    printOperationTypes(operation->previous);
+    printf("%c", operation->type->name[0]);
 }
 
-void printFirstString (struct Change * change) {
-    if (change == NULL || change->type == NULL) { return; }
-    printFirstString(change->previous);
-    printf("%c", change->firstString);
+/*
+ * Prints the first string after the edit
+ *
+ * param {struct Operation *} operation The top of the stack
+ */
+void printFirstString (struct Operation * operation) {
+    if (operation == NULL || operation->type == NULL) { return; }
+    printFirstString(operation->previous);
+    printf("%c", operation->firstString);
 }
 
-void printSecondString (struct Change * change) {
-    if (change == NULL || change->type == NULL) { return; }
-    printSecondString(change->previous);
-    printf("%c", change->secondString);
+/*
+ * Prints the second string after the edit
+ *
+ * param {struct Operation *} operation The top of the stack
+ */
+void printSecondString (struct Operation * operation) {
+    if (operation == NULL || operation->type == NULL) { return; }
+    printSecondString(operation->previous);
+    printf("%c", operation->secondString);
 }
 
 /*
@@ -87,88 +101,104 @@ void printSecondString (struct Change * change) {
  * param {char *} correctString String source
  * param {char *} wrongString String destiny
  *
- * returns {struct Change *} The top of the changes stack
+ * returns {struct Operation *} The top of the operations stack
  */
-struct Change * Distance (char * wrongString, char * correctString) {
+struct Operation * Distance (char * wrongString, char * correctString) {
     int lines, columns;
     int i, j;
     int cost;
-    struct Change * costs [MAX_SIZE][MAX_SIZE];
+    struct Operation *** operations;
 
     lines = stringSize(correctString) + 1;
     columns = stringSize(wrongString) + 1;
 
-    costs[0][0]       = NewChange(0,0);
-    costs[0][0]->cost = 0;
+    operations = (struct Operation ***) malloc(sizeof(struct Operation **) * lines);
+
+    for (i = 0; i < lines; i++) {
+        operations[i] = (struct Operation **) malloc(sizeof(struct Operation) * columns);
+    }
+
+    operations[0][0]       = NewOperation(0,0);
+    operations[0][0]->cost = 0;
 
     /* CREATING FROM NULL STRING */
     j = 0;
     for (i = 1; i < lines; i++) {
-        costs[i][j]               = NewChange();
-        costs[i][j]->cost         = i * INSERT.cost;
-        costs[i][j]->type         = &INSERT;
-        costs[i][j]->previous     = costs[i-1][j];
-        costs[i][j]->firstString  = ' ';
-        costs[i][j]->secondString = correctString[i-1];
+        operations[i][j]               = NewOperation();
+        operations[i][j]->cost         = i * INSERT.cost;
+        operations[i][j]->type         = &INSERT;
+        operations[i][j]->previous     = operations[i-1][j];
+        operations[i][j]->firstString  = ' ';
+        operations[i][j]->secondString = correctString[i-1];
     }
     /* CONVERTING TO NULL STRING */
     i = 0;
     for (j = 1; j < columns; j++) {
-        costs[i][j]               = NewChange();
-        costs[i][j]->cost         = j * REMOVE.cost;
-        costs[i][j]->type         = &REMOVE;
-        costs[i][j]->previous     = costs[i][j-1];
-        costs[i][j]->firstString  = wrongString[j-1];
-        costs[i][j]->secondString = ' ';
+        operations[i][j]               = NewOperation();
+        operations[i][j]->cost         = j * REMOVE.cost;
+        operations[i][j]->type         = &REMOVE;
+        operations[i][j]->previous     = operations[i][j-1];
+        operations[i][j]->firstString  = wrongString[j-1];
+        operations[i][j]->secondString = ' ';
     }
     for (i = 1; i < lines; i++) {
         for (j = 1; j < columns; j++) {
-            costs[i][j] = NewChange();
+            operations[i][j] = NewOperation();
             /* COPY OPERATION */
-            cost = costs[i-1][j-1]->cost + COPY.cost;
-            if (cost < costs[i][j]->cost && correctString[i-1] == wrongString[j-1]) {
-                costs[i][j]->cost         = cost;
-                costs[i][j]->type         = &COPY;
-                costs[i][j]->previous     = costs[i-1][j-1];
-                costs[i][j]->firstString  = wrongString[j-1];
-                costs[i][j]->secondString = correctString[i-1];
+            cost = operations[i-1][j-1]->cost + COPY.cost;
+            if (cost < operations[i][j]->cost && correctString[i-1] == wrongString[j-1]) {
+                operations[i][j]->cost         = cost;
+                operations[i][j]->type         = &COPY;
+                operations[i][j]->previous     = operations[i-1][j-1];
+                operations[i][j]->firstString  = wrongString[j-1];
+                operations[i][j]->secondString = correctString[i-1];
             }
             /* REPLACE OPERATION */
-            cost = costs[i-1][j-1]->cost + REPLACE.cost;
-            if (cost < costs[i][j]->cost) {
-                costs[i][j]->cost         = cost;
-                costs[i][j]->type         = &REPLACE;
-                costs[i][j]->previous     = costs[i-1][j-1];
-                costs[i][j]->firstString  = wrongString[j-1];
-                costs[i][j]->secondString = correctString[i-1];
+            cost = operations[i-1][j-1]->cost + REPLACE.cost;
+            if (cost < operations[i][j]->cost) {
+                operations[i][j]->cost         = cost;
+                operations[i][j]->type         = &REPLACE;
+                operations[i][j]->previous     = operations[i-1][j-1];
+                operations[i][j]->firstString  = wrongString[j-1];
+                operations[i][j]->secondString = correctString[i-1];
             }
             /* REMOVE OPERATION */
-            cost = costs[i][j-1]->cost + REMOVE.cost;
-            if (cost < costs[i][j]->cost) {
-                costs[i][j]->cost         = cost;
-                costs[i][j]->type         = &REMOVE;
-                costs[i][j]->previous     = costs[i][j-1];
-                costs[i][j]->firstString  = wrongString[j-1];
-                costs[i][j]->secondString = ' ';
+            cost = operations[i][j-1]->cost + REMOVE.cost;
+            if (cost < operations[i][j]->cost) {
+                operations[i][j]->cost         = cost;
+                operations[i][j]->type         = &REMOVE;
+                operations[i][j]->previous     = operations[i][j-1];
+                operations[i][j]->firstString  = wrongString[j-1];
+                operations[i][j]->secondString = ' ';
             }
             /* INSERT OPERATION */
-            cost = costs[i-1][j]->cost + INSERT.cost;
-            if (cost < costs[i][j]->cost) {
-                costs[i][j]->cost         = cost;
-                costs[i][j]->type         = &INSERT;
-                costs[i][j]->previous     = costs[i-1][j];
-                costs[i][j]->firstString  = ' ';
-                costs[i][j]->secondString = correctString[i-1];
+            cost = operations[i-1][j]->cost + INSERT.cost;
+            if (cost < operations[i][j]->cost) {
+                operations[i][j]->cost         = cost;
+                operations[i][j]->type         = &INSERT;
+                operations[i][j]->previous     = operations[i-1][j];
+                operations[i][j]->firstString  = ' ';
+                operations[i][j]->secondString = correctString[i-1];
             }
         }
     }
 
-    return costs[lines-1][columns-1];
+    return operations[lines-1][columns-1];
 }
 
 int main (void) {
-    int i, j;
-    struct Change * changes;
+    struct Operation * operations;
+    char *string1, *string2;
+    int size1, size2;
+
+    scanf("%d", &size1);
+    scanf("%d", &size2);
+
+    string1 = (char *) malloc(sizeof(char) * size1);
+    string2 = (char *) malloc(sizeof(char) * size2);
+
+    scanf("%s", string1);
+    scanf("%s", string2);
 
     COPY.name    = "+";
     COPY.cost    = -1;
@@ -182,16 +212,15 @@ int main (void) {
     INSERT.name  = "*";
     INSERT.cost  = 2;
 
-    changes = Distance("GATCGGCAT", "CAATGAATC");
+    operations = Distance(string1, string2);
 
-    printFirstString(changes);
+    printf("%d\n", operations->cost);
+    printFirstString(operations);
     printf("\n");
-    printSecondString(changes);
+    printSecondString(operations);
     printf("\n");
-    printOperations(changes);
+    printOperationTypes(operations);
     printf("\n");
 
-    //na primeira string copy e replace e delete repito o char, insert char em branco
-    //na segunda string copy e replace e insert repito o char, delete char em branco
     return 0;
 }
