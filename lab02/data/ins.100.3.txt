@@ -1,0 +1,20 @@
+28 72
+tccaggcacggggtcaggccccttaagg
+gtcctgccagccttgcgtctcgacttagtgaaaccttcattcagtgtccaacgtgagggaagaatctggtca
+0 1 1 1 99999999 99999999
+42 58
+tcgggattagaccgctatttcttatcgcatctagcggtagca
+tgcaccttaaggactgctcgcaagggcgtgcgagcatatgtcatctaggcatctagcc
+0 1 1 1 99999999 99999999
+57 43
+aagccgtggcgctccttggtaaaagatggttgtcgagcgagtacacattggtccttc
+cctaactatggtagctgcgtccgggctttgaattatattgccc
+0 1 1 1 99999999 99999999
+71 29
+aggtatcgtcactaagtggtcctacggtgtagcccaacgtggacgatcgcatgtgtaacgtcatgctcgca
+attcatacacatttcctcgcttcgaccct
+0 1 1 1 99999999 99999999
+85 15
+gcgcatcggcgtcccacgggatcttttaaatgacgattgcaaacacactgttctcagaactgtttctgtattagtattccctagg
+ccaacctttgcactt
+0 1 1 1 99999999 99999999

@@ -1,0 +1,20 @@
+14 36
+tatccgacaaattc
+tcttataggtgcttcgcagtctcctcctatttagca
+0 1 1 1 99999999 99999999
+21 29
+acggaatttactttgactaat
+cttagcatgattgctgagaagttccggag
+0 1 1 1 99999999 99999999
+28 22
+gttacggggcacattcgacaaagttgac
+aatcgcctttcctcgtaatgaa
+0 1 1 1 99999999 99999999
+35 15
+gaattgcttctcgcgtacccgagttgtgatcctca
+gtcccgagtaagact
+0 1 1 1 99999999 99999999
+42 8
+attggctcttaaataactcgagcgccgtctcccagtccttat
+ttcttgct
+0 1 1 1 99999999 99999999
